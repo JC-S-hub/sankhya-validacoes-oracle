@@ -4,6 +4,25 @@
 
 As duas triggers são executadas antes de inclusões ou alterações na tabela financeira `TGFFIN`. A primeira verifica a obrigatoriedade de `DTREFERENCIA`; a segunda limita a antiguidade do período informado.
 
+## Compatibilidade de campos e estruturas adicionais
+
+No Sankhya, colunas adicionais criadas pelo cliente normalmente são identificadas pelo prefixo `AD_`. Elas representam customizações locais e não devem ser consideradas disponíveis em todos os ambientes.
+
+Ao adaptar qualquer código:
+
+1. localize campos, tabelas e demais referências iniciadas por `AD_`;
+2. confirme se a estrutura existe e se o tipo de dado é compatível;
+3. caso não exista, crie o campo adicional necessário ou substitua-o pelo campo mais adequado à regra do novo ambiente;
+4. ajuste consultas, triggers, relatórios e integrações que dependam dessa estrutura;
+5. homologue a alteração antes de executar em produção.
+
+Há uma diferença importante:
+
+- **Campo `AD_*`**: coluna adicional vinculada a uma entidade/tabela;
+- **Tabela `AD_*`**: tabela adicional criada para uma finalidade específica.
+
+Neste projeto, `AD_CTRIGGER` é uma **tabela adicional de controle**. Ela não é garantida pelo padrão do Sankhya. Se não existir no ambiente de destino, será necessário criá-la ou substituir esse controle por outro mecanismo.
+
 ## Controle de ativação
 
 Cada trigger consulta dinamicamente a tabela customizada `AD_CTRIGGER`:
@@ -83,4 +102,5 @@ Na segunda trigger, um `UPDATE` só é validado quando `DTREFERENCIA` é efetiva
 1. Em Oracle, comparações e `NOT IN` com valores `NULL` não resultam em verdadeiro. Valide a nulabilidade de `CODTIPOPER`, `RECDESP`, `CODNAT`, `PROVISAO` e `ORIGEM`.
 2. O uso de `SYSDATE` considera a data do servidor do banco.
 3. Mensagens e códigos de `RAISE_APPLICATION_ERROR` devem ser coordenados com outras customizações.
-4. A solução deve ser homologada com todos os processos de integração, remessa, renegociação e confirmação de nota.
+4. Toda referência `AD_*` deve ser confirmada ou adaptada ao ambiente de destino.
+5. A solução deve ser homologada com todos os processos de integração, remessa, renegociação e confirmação de nota.
