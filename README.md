@@ -28,9 +28,21 @@ docs/
 - Remessas e renegociações possuem exceções específicas para inclusão.
 - Códigos de operação e natureza presentes no exemplo devem ser revisados para cada ambiente.
 
+## Campos e estruturas adicionais (`AD_*`)
+
+No Sankhya, campos adicionais criados pelo cliente normalmente recebem o prefixo `AD_`. Esses campos **não pertencem necessariamente ao modelo padrão do sistema** e podem não existir em outro ambiente.
+
+Quem reutilizar este projeto deve:
+
+- identificar toda referência iniciada por `AD_`;
+- criar o campo adicional correspondente no próprio ambiente; ou
+- substituir a referência por outro campo que atenda à sua regra de negócio.
+
+O mesmo cuidado vale para tabelas customizadas. Neste projeto, `AD_CTRIGGER` é uma **tabela adicional de controle**, e não uma tabela padrão garantida em todas as instalações. Ela pode ser criada com a estrutura documentada ou substituída por outro mecanismo de ativação.
+
 ## Ordem sugerida de instalação
 
-1. Revise os parâmetros marcados como **CONFIGURAÇÃO DO AMBIENTE**.
+1. Revise os parâmetros marcados como **CONFIGURAÇÃO DO AMBIENTE** e todas as referências `AD_*`.
 2. Execute os arquivos da pasta `sql` com um usuário autorizado.
 3. Cadastre os nomes das triggers na tabela de controle `AD_CTRIGGER`.
 4. Ative inicialmente em ambiente de homologação.
