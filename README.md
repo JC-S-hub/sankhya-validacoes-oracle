@@ -1,73 +1,105 @@
-# Validações de período de referência no Sankhya
+# Regras, validações e automações Sankhya / Oracle
 
-Projeto demonstrativo com duas triggers Oracle PL/SQL para validar o campo `DTREFERENCIA` dos lançamentos financeiros (`TGFFIN`) em ambientes Sankhya.
+Repositório para centralizar customizações técnicas usadas no Sankhya ERP, principalmente regras de negócio, procedures, triggers e validações implementadas em Oracle PL/SQL.
 
-## Objetivo
+O objetivo deste repositório não é documentar uma única regra, mas manter cada customização separada, com seu código, finalidade, exceções e critérios de implantação.
 
-As triggers trabalham em conjunto:
-
-1. **Obrigatoriedade** — exige o preenchimento do período de referência nos lançamentos sujeitos à regra.
-2. **Limite temporal** — impede que o período informado seja anterior ao mês imediatamente anterior ao processamento.
-
-## Estrutura
+## Estrutura atual
 
 ```text
 sql/
 ├── 01_valida_preenchimento_dtreferencia.sql
 ├── 02_bloqueia_dtreferencia_antiga.sql
 └── 03_liberacao_cont_eletrica.sql
+
 docs/
-├── regras-de-negocio.md
+├── periodo-referencia.md
 └── liberacao-eletrica.md
 ```
 
-## Regras principais
+## Módulos
 
-- A ativação é controlada pela tabela customizada `AD_CTRIGGER`.
-- Lançamentos de origem `E` são relacionados à nota em `TGFCAB`.
-- Notas liberadas só são revalidadas quando `DTREFERENCIA` é efetivamente alterada.
-- A segunda trigger permite o mês anterior, o mês atual e períodos futuros.
-- Remessas e renegociações possuem exceções específicas para inclusão.
-- Códigos de operação e natureza presentes no exemplo devem ser revisados para cada ambiente.
+### 1. Validação de período de referência
 
-## Campos e estruturas adicionais (`AD_*`)
+Controla o preenchimento e o limite temporal de `DTREFERENCIA` em lançamentos financeiros.
 
-No Sankhya, campos adicionais criados pelo cliente normalmente recebem o prefixo `AD_`. Esses campos **não pertencem necessariamente ao modelo padrão do sistema** e podem não existir em outro ambiente.
+Arquivos:
 
-Quem reutilizar este projeto deve:
+- `sql/01_valida_preenchimento_dtreferencia.sql`
+- `sql/02_bloqueia_dtreferencia_antiga.sql`
+- `docs/periodo-referencia.md`
 
-- identificar toda referência iniciada por `AD_`;
-- criar o campo adicional correspondente no próprio ambiente; ou
-- substituir a referência por outro campo que atenda à sua regra de negócio.
+Principais objetos envolvidos:
 
-O mesmo cuidado vale para tabelas customizadas. Neste projeto, `AD_CTRIGGER` é uma **tabela adicional de controle**, e não uma tabela padrão garantida em todas as instalações. Ela pode ser criada com a estrutura documentada ou substituída por outro mecanismo de ativação.
+- `TGFFIN`
+- `TGFCAB`
+- `AD_CTRIGGER`
 
-## Ordem sugerida de instalação
+### 2. Regra de liberação da Elétrica
 
-1. Revise os parâmetros marcados como **CONFIGURAÇÃO DO AMBIENTE** e todas as referências `AD_*`.
-2. Execute os arquivos da pasta `sql` com um usuário autorizado.
-3. Cadastre os nomes das triggers na tabela de controle `AD_CTRIGGER`.
-4. Ative inicialmente em ambiente de homologação.
-5. Teste inclusões e alterações de todas as origens utilizadas pela empresa.
+Controla a necessidade de liberação de nota por meio da procedure `STP_LIBERACAO_CONT_MB`.
 
-## Importante
-
-Este repositório é um exemplo técnico e **não é um produto oficial da Sankhya**. Estruturas customizadas, códigos de TOP, naturezas, origens e regras fiscais/financeiras variam entre ambientes. Faça backup, valide em homologação e submeta a solução à equipe responsável antes de utilizar em produção.
-
-## Tecnologias
-
-- Oracle Database
-- PL/SQL
-- ERP Sankhya
-
-
-## Regra de liberação da Elétrica
-
-O arquivo `sql/03_liberacao_cont_eletrica.sql` contém a procedure `STP_LIBERACAO_CONT_MB`.
-
-A exceção dispensa esta liberação somente quando:
+A exceção atual dispensa esta liberação somente quando as duas condições forem atendidas simultaneamente:
 
 - `CODEMP = 31`
 - `CODCENCUS = 1040112`
 
-As duas condições precisam ser atendidas simultaneamente.
+Arquivos:
+
+- `sql/03_liberacao_cont_eletrica.sql`
+- `docs/liberacao-eletrica.md`
+
+Principais objetos envolvidos:
+
+- `TGFCAB`
+- `STATUSNOTA`
+- `CODEMP`
+- `CODCENCUS`
+
+## Convenção do repositório
+
+Cada nova regra deve, sempre que possível, possuir:
+
+1. um arquivo SQL próprio em `sql/`;
+2. uma documentação própria em `docs/`;
+3. descrição das tabelas e campos utilizados;
+4. descrição de exceções;
+5. matriz mínima de testes;
+6. indicação clara de qualquer dependência de campos ou tabelas customizadas.
+
+## Campos e tabelas adicionais `AD_*`
+
+No Sankhya, campos e tabelas iniciados por `AD_` normalmente representam customizações do cliente.
+
+Essas estruturas não são garantidas em outros ambientes.
+
+Quem reutilizar qualquer código deste repositório deve:
+
+- identificar referências `AD_*`;
+- confirmar se elas existem no ambiente de destino;
+- criar ou substituir essas estruturas quando necessário;
+- revisar tipos de dados e regras associadas;
+- homologar antes de implantar em produção.
+
+## Cuidados antes da implantação
+
+Antes de executar qualquer script:
+
+1. leia a documentação específica do módulo;
+2. revise códigos de empresa, centro de resultado, TOP, natureza, usuário e demais parâmetros fixos;
+3. confirme campos e tabelas adicionais;
+4. valide dependências com outros objetos;
+5. teste em homologação;
+6. somente depois faça a implantação em produção.
+
+## Importante
+
+Este repositório contém customizações específicas de ambiente e não representa código oficial da Sankhya.
+
+Regras de negócio, estruturas adicionais, códigos internos e fluxos podem variar entre empresas.
+
+## Tecnologias
+
+- Sankhya ERP
+- Oracle Database
+- PL/SQL
