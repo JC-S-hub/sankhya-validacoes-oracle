@@ -14,9 +14,11 @@ As triggers trabalham em conjunto:
 ```text
 sql/
 ├── 01_valida_preenchimento_dtreferencia.sql
-└── 02_bloqueia_dtreferencia_antiga.sql
+├── 02_bloqueia_dtreferencia_antiga.sql
+└── 03_liberacao_cont_eletrica.sql
 docs/
-└── regras-de-negocio.md
+├── regras-de-negocio.md
+└── liberacao-eletrica.md
 ```
 
 ## Regras principais
@@ -57,3 +59,15 @@ Este repositório é um exemplo técnico e **não é um produto oficial da Sankh
 - Oracle Database
 - PL/SQL
 - ERP Sankhya
+
+
+## Regra de liberação da Elétrica
+
+O arquivo `sql/03_liberacao_cont_eletrica.sql` contém a procedure `STP_LIBERACAO_CONT_MB`.
+
+A exceção dispensa esta liberação somente quando:
+
+- `CODEMP = 31`
+- `CODCENCUS = 1040112`
+
+As duas condições precisam ser atendidas simultaneamente.
