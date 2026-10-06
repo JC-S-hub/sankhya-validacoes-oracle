@@ -10,11 +10,11 @@ O objetivo deste repositório não é documentar uma única regra, mas manter ca
 sql/
 ├── 01_valida_preenchimento_dtreferencia.sql
 ├── 02_bloqueia_dtreferencia_antiga.sql
-└── 03_liberacao_cont_eletrica.sql
+└── 03_liberacao_electra.sql
 
 docs/
 ├── periodo-referencia.md
-└── liberacao-eletrica.md
+└── liberacao-electra.md
 ```
 
 ## Módulos
@@ -35,26 +35,27 @@ Principais objetos envolvidos:
 - `TGFCAB`
 - `AD_CTRIGGER`
 
-### 2. Regra de liberação da Elétrica
+### 2. Regra de liberação ELECTRA
 
-Controla a necessidade de liberação de nota por meio da procedure `STP_LIBERACAO_CONT_MB`.
+Controla a necessidade de liberação de nota por meio da procedure `STP_LIBERACAO_ELECTRA_MB`.
 
-A exceção atual dispensa esta liberação somente quando as duas condições forem atendidas simultaneamente:
+A regra solicita liberação somente quando as duas condições forem atendidas simultaneamente:
 
 - `CODEMP = 31`
 - `CODCENCUS = 1040112`
 
 Arquivos:
 
-- `sql/03_liberacao_cont_eletrica.sql`
-- `docs/liberacao-eletrica.md`
+- `sql/03_liberacao_electra.sql`
+- `docs/liberacao-electra.md`
 
 Principais objetos envolvidos:
 
 - `TGFCAB`
-- `STATUSNOTA`
 - `CODEMP`
 - `CODCENCUS`
+
+O usuário liberador é configurado diretamente na tela da Regra de Negócio do Sankhya e não fica fixo na procedure.
 
 ## Convenção do repositório
 
